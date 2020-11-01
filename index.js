@@ -266,7 +266,7 @@ Thermostat.prototype = {
 
         if (value == 1)
         {
-            mode = 0;
+            mode = 2;
         }
 
         var body = {
