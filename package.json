@@ -1,6 +1,6 @@
 {
   "name": "homebridge-thermostat-ember",
-  "version": "0.0.52",
+  "version": "0.0.75",
   "description": "thermostat plugin for homebridge and EPH Controls",
   "license": "ISC",
   "keywords": [
