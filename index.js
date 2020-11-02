@@ -86,55 +86,47 @@ Thermostat.prototype = {
 
     displayZones: function ()
     {
-        this.log("Getting Zones");
-
-        this._httpRequest('/homes/list', '', 'GET', function (error, response, responseBody)
+        if (this.zone != null)
         {
-            if (error)
-            {
-                this.log("[!] Error Getting Zones: %s", error.message);
-            }
-            else if (response.statusCode >= 300)
-            {
-                this.log("[!] Error Getting Gateway", response.statusCode, response.statusMessage);
-            }
-            else
-            {
-                if (responseBody.data[0].gatewayid == undefined)
-                {
-                    this.log("[!] Error Getting Gateway: No Gateways found.");
+            this.log("Getting Zones");
+
+            this._httpRequest('/homes/list', '', 'GET', function (error, response, responseBody) {
+                if (error) {
+                    this.log("[!] Error Getting Zones: %s", error.message);
                 }
-                else
-                {
-                    this.log("[*] Found Gateway: " + responseBody.data[0].gatewayid);
+                else if (response.statusCode >= 300) {
+                    this.log("[!] Error Getting Gateway", response.statusCode, response.statusMessage);
+                }
+                else {
+                    if (responseBody.data[0].gatewayid == undefined) {
+                        this.log("[!] Error Getting Gateway: No Gateways found.");
+                    }
+                    else {
+                        this.log("[*] Found Gateway: " + responseBody.data[0].gatewayid);
 
-                    var body = {
-                        "gateWayId": responseBody.data[0].gatewayid
-                    };
+                        var body = {
+                            "gateWayId": responseBody.data[0].gatewayid
+                        };
 
-                    this._httpRequest('/zones/polling', body, 'POST', function (error, response, responseBody)
-                    {
-                        if (error)
-                        {
-                            this.log("[!] Error Getting Zones: %s", error.message);
-                        }
-                        else if (response.statusCode >= 300)
-                        {
-                            this.log("[!] Error Getting Zones", response.statusCode, response.statusMessage);
-                        }
-                        else
-                        {
-                            this.log("[*] Found " + responseBody.data.length + " Zones ");
-
-                            for (var i = 0; i < responseBody.data.length; i++)
-                            {
-                                this.log("[*] Found Zone: Name - " + responseBody.data[i].name + " Zone ID - " + responseBody.data[i].zoneid);
+                        this._httpRequest('/zones/polling', body, 'POST', function (error, response, responseBody) {
+                            if (error) {
+                                this.log("[!] Error Getting Zones: %s", error.message);
                             }
-                        }
-                    }.bind(this));
+                            else if (response.statusCode >= 300) {
+                                this.log("[!] Error Getting Zones", response.statusCode, response.statusMessage);
+                            }
+                            else {
+                                this.log("[*] Found " + responseBody.data.length + " Zones ");
+
+                                for (var i = 0; i < responseBody.data.length; i++) {
+                                    this.log("[*] Found Zone: Name - " + responseBody.data[i].name + " Zone ID - " + responseBody.data[i].zoneid);
+                                }
+                            }
+                        }.bind(this));
+                    }
                 }
-            }
-        }.bind(this));
+            }.bind(this));
+        }
     },
 
     identify: function (callback)
