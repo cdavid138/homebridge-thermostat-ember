@@ -26,22 +26,7 @@ function Thermostat(log, config)
 
     this.temperatureDisplayUnits = config.temperatureDisplayUnits || 0;
 
-    this.auth(function (error, token)
-    {
-        if (error)
-        {
-			this.log("Could not log into Hive");
-			this.log(error);
-        }
-        else
-        {
-            this.log("Logged In");
-            this.apiKey = token;
-
-            this.displayZones();
-		}
-    }
-    .bind(this));
+    this.triggerAuth();
 
     this.maxTemp = config.maxTemp || 30;
     this.minTemp = config.minTemp || 15;
@@ -60,6 +45,26 @@ function Thermostat(log, config)
 }
 
 Thermostat.prototype = {
+
+    triggerAuth: function()
+    {
+        this.auth(function (error, token)
+        {
+            if (error)
+            {
+                this.log("Could not log into Hive");
+                this.log(error);
+            }
+            else
+            {
+                this.log("Logged In");
+                this.apiKey = token;
+
+                this.displayZones();
+            }
+        }
+        .bind(this));
+    },
 
     auth: function(callback)
     {
@@ -86,7 +91,7 @@ Thermostat.prototype = {
 
     displayZones: function ()
     {
-        if (this.zone != null)
+        if (this.zone == null)
         {
             this.log("Getting Zones");
 
@@ -137,6 +142,20 @@ Thermostat.prototype = {
 
     _httpRequest: function (url, body, method, callback)
     {
+        this.makeRequest(this, url, body, method, function (error, response, body, data) {
+            if (body.message == "Not logged in or session timeout.")
+            {
+                data.triggerAuth();
+            }
+            else
+            {
+                callback(error, response, body);
+            }
+        });
+    },
+
+    makeRequest: function (data, url, body, method, callback)
+    {
         request({
             url: this.apiroute + url,
             headers: {
@@ -150,7 +169,7 @@ Thermostat.prototype = {
         },
         function (error, response, body)
         {
-            callback(error, response, body);
+            callback(error, response, body, data);
         });
     },
 
@@ -176,7 +195,7 @@ Thermostat.prototype = {
             }
             else
             {
-                if (responseBody.data != undefined)
+                if (responseBody.data == undefined)
                 {
                     this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
                     callback(null, null);
@@ -229,23 +248,28 @@ Thermostat.prototype = {
             }
             else
             {
-                for (var i = 0; i < responseBody.data.length; i++)
+                if (responseBody.data == undefined)
                 {
-                    if (responseBody.data[i].zoneid != this.zone)
-                    {
-                        continue;
+                    this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
+                    callback(null, null);
+                }
+                else
+                {
+                    for (var i = 0; i < responseBody.data.length; i++) {
+                        if (responseBody.data[i].zoneid != this.zone) {
+                            continue;
+                        }
+
+                        var newValue = 1;
+
+                        if (responseBody.data[i].mode == 3) {
+                            newValue = 0;
+                        }
+
+                        this.log("[*] targetHeatingCoolingState: %s", newValue);
+                        this.targetHeatingCoolingState = newValue;
+                        callback(null, this.targetHeatingCoolingState);
                     }
-
-                    var newValue = 1;
-
-                    if (responseBody.data[i].mode == 3)
-                    {
-                        newValue = 0;
-                    }
-
-                    this.log("[*] targetHeatingCoolingState: %s", newValue);
-                    this.targetHeatingCoolingState = newValue;
-                    callback(null, this.targetHeatingCoolingState);
                 }
             }
         }.bind(this));
@@ -313,7 +337,7 @@ Thermostat.prototype = {
             }
             else
             {
-                if (responseBody.data != undefined)
+                if (responseBody.data == undefined)
                 {
                     this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
                     callback(null, null);
@@ -367,7 +391,7 @@ Thermostat.prototype = {
             }
             else
             {
-                if (responseBody.data != undefined)
+                if (responseBody.data == undefined)
                 {
                     this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
                     callback(null, null);
