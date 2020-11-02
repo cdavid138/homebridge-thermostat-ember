@@ -189,29 +189,27 @@ Thermostat.prototype = {
                     this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
                     callback(null, null);
                 }
-
-                for (var i = 0; i < responseBody.data.length; i++)
+                else
                 {
-                    if (responseBody.data[i].zoneid != this.zone)
-                    {
-                        continue;
+                    for (var i = 0; i < responseBody.data.length; i++) {
+                        if (responseBody.data[i].zoneid != this.zone) {
+                            continue;
+                        }
+
+                        var newValue = 1;
+
+                        if (responseBody.data[i].mode == 3) {
+                            newValue = 0;
+                        }
+
+                        if (responseBody.data[i].currenttemperature > responseBody.data[i].targettemperature) {
+                            newValue = 0;
+                        }
+
+                        this.log("[*] currentHeatingCoolingState: %s", newValue);
+                        this.currentHeatingCoolingState = newValue;
+                        callback(null, this.currentHeatingCoolingState);
                     }
-
-                    var newValue = 1;
-
-                    if (responseBody.data[i].mode == 3)
-                    {
-                        newValue = 0;
-                    }
-
-                    if (responseBody.data[i].currenttemperature > responseBody.data[i].targettemperature)
-                    {
-                        newValue = 0;
-                    }
-
-                    this.log("[*] currentHeatingCoolingState: %s", newValue);
-                    this.currentHeatingCoolingState = newValue;
-                    callback(null, this.currentHeatingCoolingState);
                 }
             }
         }.bind(this));
@@ -328,25 +326,29 @@ Thermostat.prototype = {
                     this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
                     callback(null, null);
                 }
-
-                for (var i = 0; i < responseBody.data.length; i++)
+                else
                 {
-                    if (responseBody.data[i].zoneid != this.zone)
+                    for (var i = 0; i < responseBody.data.length; i++)
                     {
-                        continue;
+                        if (responseBody.data[i].zoneid != this.zone)
+                        {
+                            continue;
+                        }
+
+                        var newValue = parseFloat(responseBody.data[i].currenttemperature);
+
+                        if (newValue < 0)
+                        {
+                            newValue = 0;
+                        }
+
+                        this.currentTemperature = newValue;
+                        this.log("[*] currentTemperature: %s", this.currentTemperature);
+                        callback(null, this.currentTemperature);
                     }
-
-                    var newValue = parseFloat(responseBody.data[i].currenttemperature);
-
-                    if (newValue < 0)
-                    {
-                        newValue = 0;
-                    }
-
-                    this.currentTemperature = newValue;
-                    this.log("[*] currentTemperature: %s", this.currentTemperature);
-                    callback(null, this.currentTemperature);
                 }
+
+
             }
         }.bind(this));
     },
@@ -378,25 +380,29 @@ Thermostat.prototype = {
                     this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
                     callback(null, null);
                 }
-
-                for (var i = 0; i < responseBody.data.length; i++)
+                else
                 {
-                    if (responseBody.data[i].zoneid != this.zone)
+                    for (var i = 0; i < responseBody.data.length; i++)
                     {
-                        continue;
+                        if (responseBody.data[i].zoneid != this.zone)
+                        {
+                            continue;
+                        }
+
+                        var newValue = parseFloat(responseBody.data[i].targettemperature);
+
+                        if (newValue < 0)
+                        {
+                            newValue = 0;
+                        }
+
+                        this.targetTemperature = newValue;
+                        this.log("[*] targetTemperature: %s", this.targetTemperature);
+                        callback(null, this.targetTemperature);
                     }
-
-                    var newValue = parseFloat(responseBody.data[i].targettemperature);
-
-                    if (newValue < 0)
-                    {
-                        newValue = 0;
-                    }
-
-                    this.targetTemperature = newValue;
-                    this.log("[*] targetTemperature: %s", this.targetTemperature);
-                    callback(null, this.targetTemperature);
                 }
+
+
             }
         }.bind(this));
     },
