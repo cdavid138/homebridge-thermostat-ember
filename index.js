@@ -184,6 +184,12 @@ Thermostat.prototype = {
             }
             else
             {
+                if (responseBody.data != undefined)
+                {
+                    this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
+                    callback(null, null);
+                }
+
                 for (var i = 0; i < responseBody.data.length; i++)
                 {
                     if (responseBody.data[i].zoneid != this.zone)
@@ -317,6 +323,12 @@ Thermostat.prototype = {
             }
             else
             {
+                if (responseBody.data != undefined)
+                {
+                    this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
+                    callback(null, null);
+                }
+
                 for (var i = 0; i < responseBody.data.length; i++)
                 {
                     if (responseBody.data[i].zoneid != this.zone)
@@ -361,6 +373,12 @@ Thermostat.prototype = {
             }
             else
             {
+                if (responseBody.data != undefined)
+                {
+                    this.log("[!] Error Getting Zone Data", response.statusCode, response.statusMessage);
+                    callback(null, null);
+                }
+
                 for (var i = 0; i < responseBody.data.length; i++)
                 {
                     if (responseBody.data[i].zoneid != this.zone)
